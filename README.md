@@ -2,7 +2,7 @@
 A command line voitng simulator similar to anA iClicker or Kahoot!
 
 
-# Sampe Output
+# Sample Output
 The are 10 students playing this round.
 The following question will be a True or False question. Please select one of the following candidate answers.
 The original Total Recall stars Arnold Schwarzenegger
