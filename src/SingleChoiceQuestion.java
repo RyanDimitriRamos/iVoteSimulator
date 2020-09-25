@@ -1,13 +1,16 @@
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.InputMismatchException;
+import java.util.List;
 
-public class TrueOrFalseQuestion implements Question  {
+public class SingleChoiceQuestion implements Question  {
     private String questionText;
     private LinkedHashMap<String, String> candidateAnswers;
-    private String correctAnswer;
+    private List<String> correctAnswer = new ArrayList<>(1);
+    private String questionType = "SingleChoice";
 
 
-    TrueOrFalseQuestion(String questionText, LinkedHashMap<String, String> candidateAnswers, String correctAnswer){
+    SingleChoiceQuestion(String questionText, LinkedHashMap<String, String> candidateAnswers, List<String> correctAnswer){
         System.out.println("The following question will be a True or False question. Please select one of the following candidate answers.");
         this.questionText = questionText;
         if(candidateAnswers.size() == 2){
@@ -24,7 +27,7 @@ public class TrueOrFalseQuestion implements Question  {
 
     public String getQuestionText() { return questionText; }
 
-    public String getCorrectAnswer() { return correctAnswer; }
+    public List<String> getCorrectAnswer() { return correctAnswer; }
 
     public LinkedHashMap<String, String> getCandidateAnswers() { return candidateAnswers; }
 
@@ -34,5 +37,11 @@ public class TrueOrFalseQuestion implements Question  {
             System.out.println(choice + ". " + candidateAnswers.get(choice));
         }
     }
+    public void printAnswers(){
+        System.out.print(correctAnswer.get(0) + " ");
+    }
+
+    public String getQuestionType() { return questionType; }
+
 
 }

@@ -1,23 +1,21 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Random;
+import java.util.*;
 
 public class SimulationDriver {
     //Here are three  parallel arrays storing the questions candidate answers, and actual answer
-    private static ArrayList<String> mcQuestionTexts = new ArrayList<>(Arrays.asList("What is the name of the main protagonist from Star Wars A New Hope?",
-            "What is the name of the main antagonist from Star Wars A New Hope?"
+    private static ArrayList<String> mcQuestionTexts = new ArrayList<>(Arrays.asList("Who are the protagonists in Star Wars: A New Hope?",
+            "Who are the antagonists in Star Wars: A New Hope?"
     ));
     private static ArrayList<LinkedHashMap<String, String>> mcCandidateAnswers = initializeCandidateAnswers(1);
 
-    private static ArrayList<String> mcAnswers = new ArrayList<>(Arrays.asList("A", "B"));
+    private static ArrayList<List<String>> mcAnswers = new ArrayList<>(Arrays.asList(Arrays.asList("A", "C", "D"), Arrays.asList("A", "B")));
 
     // three more parallel arrays storing the single choice questions, their candidate answers, and the answer
     private static ArrayList<String> scQuestionTexts = new ArrayList<>(Arrays.asList("The original Back to the Future finished filming in 1985.",
             "The original Total Recall stars Arnold Schwarzenegger"
     ));
     private static ArrayList<LinkedHashMap<String, String>> scCandidateAnswers = initializeCandidateAnswers(2);
-    private static ArrayList<String> scAnswers = new ArrayList<>(Arrays.asList("1", "1"));
+    private static ArrayList<List<String>> scAnswers = new ArrayList<>(Arrays.asList(Arrays.asList("1"), Arrays.asList("1")));
+
 
     // Function that creates a couple of default questions  candidate answers for both single and multi choice questions.
     private static ArrayList<LinkedHashMap<String, String>> initializeCandidateAnswers(int questionType){
@@ -27,7 +25,7 @@ public class SimulationDriver {
             question1.put("A", "Luke Skywalker");
             question1.put("B", "Anakin Skywalker");
             question1.put("C", "Princess Leia");
-            question1.put("D", "Yoda");
+            question1.put("D", "Han Solo");
             multipleChoice.add(question1);
             LinkedHashMap<String, String> question2 = new LinkedHashMap<>();
             question2.put("A", "Grand Moff Tarkin");
@@ -76,12 +74,12 @@ public class SimulationDriver {
         if(questionType == 1){
             int maxQuestionNumber = mcQuestionTexts.size();
             int questionIndex = rand.nextInt(maxQuestionNumber);
-            return new MultipleChoiceQuestion(mcQuestionTexts.get(questionIndex), mcCandidateAnswers.get(questionIndex), mcAnswers.get(questionIndex));
+            return new MultiChoiceQuestion(mcQuestionTexts.get(questionIndex), mcCandidateAnswers.get(questionIndex), mcAnswers.get(questionIndex));
         }
         else{
             int maxQuestionNumber = scQuestionTexts.size();
             int questionIndex = rand.nextInt(maxQuestionNumber);
-            return new TrueOrFalseQuestion(scQuestionTexts.get(questionIndex), scCandidateAnswers.get(questionIndex), scAnswers.get(questionIndex));
+            return new SingleChoiceQuestion(scQuestionTexts.get(questionIndex), scCandidateAnswers.get(questionIndex), scAnswers.get(questionIndex));
         }
     }
     // This function automatically has all of the students select an answer from the candidate answer at random and then submits each of the students answer choices.
@@ -91,25 +89,27 @@ public class SimulationDriver {
     private static void autoSubmitAnswers(ArrayList<Student> students, VotingService votingService, Question testQuestion, boolean extraSubmissions) {
         Random rand = new Random();
         int studentAnswer;
+        int numberOfAnswers;
         String[] candidateAnswerKeys = testQuestion.getCandidateAnswers().keySet().toArray(new String[0]); // put the keys in an array so the student can randomly select a key
-        // Each student randomly selects a value from the candidate answer keys and submits it as their answer
-        for(Student student : students){
-            studentAnswer =  rand.nextInt(testQuestion.getCandidateAnswers().size());
-            student.setAnswer(candidateAnswerKeys[studentAnswer]);
-            student.setAnswer(candidateAnswerKeys[studentAnswer]);
-        }
-        // if person running the program wants some students to submit more than one answer this will run and add more student submissions to the list
-        // passed to the voting service.
-        if(extraSubmissions){
-            int numExtraSubmissions = rand.nextInt(students.size());
-            for(int i = 0; i <= numExtraSubmissions; i++){
-                studentAnswer =  rand.nextInt(testQuestion.getCandidateAnswers().size());
-                Student student = students.get(i);
-                student.setAnswer(candidateAnswerKeys[studentAnswer]);
-                students.add(student);
+        if (testQuestion.getQuestionType().equals("MultiChoice")) {
+            for (Student student : students) {
+                Stack<String> answers = new Stack<>();
+                numberOfAnswers = rand.nextInt(candidateAnswerKeys.length) + 1;
+                for (int i = 0; i < numberOfAnswers; i++) {
+                    studentAnswer = rand.nextInt(candidateAnswerKeys.length);
+                    if(!answers.contains(candidateAnswerKeys[studentAnswer]))
+                        answers.add(candidateAnswerKeys[studentAnswer]);
+                }
+                student.setAnswers(answers);
+            }
+        } else {
+            for (Student student : students) {
+                Stack<String> answers = new Stack<>();
+                studentAnswer = rand.nextInt(testQuestion.getCandidateAnswers().size());
+                answers.add(candidateAnswerKeys[studentAnswer]);
+                student.setAnswers(answers);
             }
         }
-
         System.out.println("The number of student submissions is: " + students.size()); // This shows how many answers were submitted to the service
         votingService.submit(students);
     }
@@ -120,6 +120,6 @@ public class SimulationDriver {
         Question testQuestion = pickQuestion(); // this is the question used for the round
         VotingService votingService = new VotingService(testQuestion); // the voting service is initialized with the question and candidate answers
         autoSubmitAnswers(students, votingService, testQuestion, true); // this is a method for testing that has a classroom of students answer the question chosen earlier.
-
+        //autoSubmitAnswers(students, votingService, testQuestion, true, 2);
     }
 }
