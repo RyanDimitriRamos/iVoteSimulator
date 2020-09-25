@@ -36,6 +36,7 @@ public class VotingService {
                 String answer;
                 answer = submission.getValue().pop();
                 statistics.replace(answer, statistics.get(answer) + 1);
+
             }
         }
         return statistics;
