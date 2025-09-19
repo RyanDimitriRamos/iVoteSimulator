@@ -1,5 +1,5 @@
 # iVoteSimulator
-A command line voitng simulator similar to an iClicker or Kahoot!
+A command line voting simulator similar to an iClicker or Kahoot!
 
 
 # Sample Output
